@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Mergefetti",
   "version": "1.0.0",
-  "description": "Celebrates GitHub PR merges with a beautiful, custom confetti rain!",
+  "description": "Celebrates GitHub pull request merges with a gorgeous, custom confetti rain stream!",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -11,9 +11,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://github.com/*",
-        "https://*.github.com/*",
-        "https://github.*.com/*"
+        "<all_urls>"
       ],
       "js": ["canvas-confetti.js", "content.js"]
     }

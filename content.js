@@ -1,24 +1,75 @@
-document.addEventListener('click', (event) => {
-  const targetButton = event.target.closest('button');
-  if (!targetButton) return;
+// SAFETY CHECK: Detects if the current webpage is a public or self-hosted GitHub Enterprise instance
+const isGitHubPage =
+  document.querySelector('meta[property="og:site_name"]')?.getAttribute('content') === 'GitHub' ||
+  window.location.hostname.includes('github') ||
+  document.querySelector('a[href="https://github.com"]');
 
-  const btnText = targetButton.textContent.trim().toLowerCase();
-  const btnClass = targetButton.className.toLowerCase();
+if (isGitHubPage) {
+  console.log("🎉 Mergefetti active on this GitHub instance!");
 
-  // ADAPTIVE MATCHING: Looks for 'confirm' and 'merge' anywhere in the button text
-  // Covers: "Confirm merge", "Confirm squash and merge", and "Confirm rebase and merge"
-  const isConfirmMerge = btnText.includes('confirm') && btnText.includes('merge');
-  const isAdminBypass = btnText.includes('bypass rules and merge');
-  const isClassMatch = btnClass.includes('confirm-merge');
-
-  if (isConfirmMerge || isAdminBypass || isClassMatch) {
-    console.log(`🎯 Ultimate confirmation step detected: "${targetButton.textContent.trim()}"`);
-
-    // Tiny delay so the UI processes the click framework execution first
-    setTimeout(() => {
-      if (typeof window.confettiRain === 'function') {
-        window.confettiRain();
+  // 1. Initialize the MutationObserver to monitor dynamic DOM changes (for SPA navigation)
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.addedNodes.length) {
+        attachMergeButtonListener();
       }
-    }, 150);
+    });
+  });
+
+  // Start observing the body element for structural layout changes
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  // 2. Core function to find the merge button and attach our confetti trigger
+  function attachMergeButtonListener() {
+    // Target common GitHub merge button classes/attributes (.btn-group-merge, .js-merge-box-button, etc.)
+    const mergeButtons = document.querySelectorAll(
+      '.js-merge-box-button, button[data-details-container=".js-merge-pr-wrapper"]'
+    );
+
+    mergeButtons.forEach((button) => {
+      // Prevent attaching duplicate event listeners to the same button
+      if (!button.classList.contains('mergefetti-ready')) {
+        button.classList.add('mergefetti-ready');
+
+        button.addEventListener('click', () => {
+          // Trigger the 3D-twirling paper shapes and party spirals
+          triggerConfettiStorm();
+        });
+      }
+    });
   }
-}, true);
+
+  // 3. Confetti Animation Function using canvas-confetti
+  function triggerConfettiStorm() {
+    const duration = 3 * 1000; // Run for 3 seconds
+    const end = Date.now() + duration;
+
+    (function frame() {
+      // Left side stream launching upwards and inwards
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.8 },
+        colors: ['#238636', '#2ea44f', '#58a6ff', '#ff7b72', '#d29922'] // GitHub-inspired palette
+      });
+
+      // Right side stream launching upwards and inwards
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.8 },
+        colors: ['#238636', '#2ea44f', '#58a6ff', '#ff7b72', '#d29922']
+      });
+
+      // Keep looping until the 3 seconds are up
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    }());
+  }
+
+  // Run an initial sweep right when the page loads
+  attachMergeButtonListener();
+}
