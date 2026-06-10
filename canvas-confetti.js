@@ -20,7 +20,7 @@
     canvasInstance.width = window.innerWidth;
     canvasInstance.height = window.innerHeight;
 
-    document.documentElement.appendChild(canvasInstance);
+    document.body.appendChild(canvasInstance);
     ctx = canvasInstance.getContext('2d');
   }
 
@@ -127,7 +127,6 @@
         wobbleSpeed: Math.random() * 0.08 + 0.04,
         rotation: Math.random() * 360,
         rotationSpeed: Math.random() * 4 - 2,
-        // Unique property fields reserved explicitly for ribbon spirals
         spiralWidth: Math.random() * 3 + 4,
         lineWidth: Math.random() * 1 + 2
       });
